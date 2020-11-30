@@ -61,15 +61,13 @@ public class ElizaServerTest {
 
 	@Test(timeout = 1000)
 	public void onChat() throws DeploymentException, IOException, URISyntaxException, InterruptedException {
+		CountDownLatch latch = new CountDownLatch(5);
 		List<String> list = new ArrayList<>();
 		ClientEndpointConfig configuration = ClientEndpointConfig.Builder.create().build();
 		ClientManager client = ClientManager.createClient();
-		Session session = client.connectToServer(new ElizaEndpointToComplete(list), configuration, new URI(url));
+		Session session = client.connectToServer(new ElizaEndpointToComplete(list, latch), configuration, new URI(url));
 		
-		session.getAsyncRemote().sendText("sorry for being an asshole");
-		Thread.sleep(100); //Wait for the answer of the server
-		session.getAsyncRemote().sendText("bye");
-		Thread.sleep(100); //Wait for the server to close the current client
+		latch.await();
 		assertEquals(5, list.size());
 		assertEquals("Please don't apologize.", list.get(3));
 	}
@@ -94,22 +92,26 @@ public class ElizaServerTest {
 
     private static class ElizaEndpointToComplete extends Endpoint {
 
-        private final List<String> list;
+		private final List<String> list;
+		private final CountDownLatch latch;
 
-        ElizaEndpointToComplete(List<String> list) {
-            this.list = list;
+        ElizaEndpointToComplete(List<String> list, CountDownLatch latch) {
+			this.list = list;
+			this.latch = latch;
         }
 
         @Override
         public void onOpen(Session session, EndpointConfig config) {
-            session.addMessageHandler(new ElizaMessageHandlerToComplete());
+			session.addMessageHandler(new ElizaMessageHandlerToComplete());
+			session.getAsyncRemote().sendText("sorry for being an asshole");
         }
 
         private class ElizaMessageHandlerToComplete implements MessageHandler.Whole<String> {
 
             @Override
             public void onMessage(String message) {
-                list.add(message);
+				list.add(message);
+				latch.countDown();
             }
         }
     }
