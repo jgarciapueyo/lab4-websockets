@@ -1,6 +1,6 @@
 language: java
 branches:
   only:
-    - test
+    - gift
 jdk:
 - openjdk8
