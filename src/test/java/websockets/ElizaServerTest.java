@@ -67,9 +67,9 @@ public class ElizaServerTest {
 		Session session = client.connectToServer(new ElizaEndpointToComplete(list), configuration, new URI(url));
 		
 		session.getAsyncRemote().sendText("sorry for being an asshole");
-		Thread.sleep(10); //Wait for the answer of the server
+		Thread.sleep(250); //Wait for the answer of the server
 		session.getAsyncRemote().sendText("bye");
-		Thread.sleep(10); //Wait for the server to close the current client
+		Thread.sleep(250); //Wait for the server to close the current client
 		assertEquals(5, list.size());
 		assertEquals("Please don't apologize.", list.get(3));
 	}
