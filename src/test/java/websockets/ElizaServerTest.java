@@ -5,7 +5,6 @@ import org.glassfish.tyrus.client.ClientManager;
 import org.glassfish.tyrus.server.Server;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import websockets.web.ElizaServerEndpoint;
 
@@ -56,14 +55,31 @@ public class ElizaServerTest {
 	}
 
 	@Test(timeout = 1000)
-	@Ignore
+    //@Ignore
 	public void onChat() throws DeploymentException, IOException, URISyntaxException, InterruptedException {
 		// COMPLETE ME!!
+        CountDownLatch latch = new CountDownLatch(2);
+
 		List<String> list = new ArrayList<>();
 		ClientEndpointConfig configuration = ClientEndpointConfig.Builder.create().build();
 		ClientManager client = ClientManager.createClient();
-		client.connectToServer(new ElizaEndpointToComplete(list), configuration, new URI("ws://localhost:8025/websockets/eliza"));
+		Session session = client.connectToServer(new ElizaEndpointToComplete(list), configuration, new URI("ws://localhost:8025/websockets/eliza"));
 		// COMPLETE ME!!
+        // The test is done thinking synchronously for better understanding of the mini protocol
+        // but all the messages could be sent one after another, then wait for all the responses
+        // and check at the end for all the responses.
+
+        Thread.sleep(100); // wait for server to send the initial messages of onOpen
+        assertEquals(3, list.size());
+        // send first message
+        session.getAsyncRemote().sendText("sorry");
+        Thread.sleep(200); // wait for server to send the response to the message
+        assertEquals(5, list.size());
+        assertEquals("Please don't apologize.", list.get(3));
+        assertEquals("---", list.get(4));
+        // send bye message
+        session.getAsyncRemote().sendText("bye");
+        Thread.sleep(200); // wait for server to answer and close connection
 	}
 
 	@After
