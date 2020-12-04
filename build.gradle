@@ -1,3 +1,9 @@
+plugins {
+    id 'org.springframework.boot' version '2.3.4.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+}
+
 apply plugin: "java"
 
 repositories {
@@ -9,5 +15,10 @@ targetCompatibility = 1.8
 
 dependencies {
 	compile 'org.glassfish.tyrus:tyrus-container-grizzly-server:1.17'
-    testCompile 'junit:junit:4.11'
+
+	compile group: 'org.springframework', name: 'spring-websocket', version: '5.3.1'
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.4.0'
+
+    testCompile 'junit:junit:4.13.1'
+	testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.4.0'
 }

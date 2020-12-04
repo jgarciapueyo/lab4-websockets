@@ -1,3 +1,6 @@
 language: java
+branches:
+  only:
+    - gift
 jdk:
 - openjdk8
