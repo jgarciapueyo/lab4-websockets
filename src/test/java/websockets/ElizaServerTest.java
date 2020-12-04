@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 public class ElizaServerTest {
 
 	private static final Logger LOGGER = Grizzly.logger(ElizaServerTest.class);
-	
+
 	@Value("${local.server.port}")
     private int port;
 	private String url;
@@ -59,7 +59,7 @@ public class ElizaServerTest {
 		assertEquals("The doctor is in.", list.get(0));
 	}
 
-	@Test(timeout = 1000)
+	@Test(timeout = 5000)
     //@Ignore
 	public void onChat() throws DeploymentException, IOException, URISyntaxException, InterruptedException {
 		// COMPLETE ME!!
@@ -68,7 +68,7 @@ public class ElizaServerTest {
 		List<String> list = new ArrayList<>();
 		ClientEndpointConfig configuration = ClientEndpointConfig.Builder.create().build();
 		ClientManager client = ClientManager.createClient();
-		Session session = client.connectToServer(new ElizaEndpointToComplete(list), configuration, new URI("ws://localhost:8025/websockets/eliza"));
+		Session session = client.connectToServer(new ElizaEndpointToComplete(list, latch), configuration, new URI(url));
 		// COMPLETE ME!!
         // The test is done thinking synchronously for better understanding of the mini protocol
         // but all the messages could be sent one after another, then wait for all the responses
@@ -85,11 +85,6 @@ public class ElizaServerTest {
         // send bye message
         session.getAsyncRemote().sendText("bye");
         Thread.sleep(200); // wait for server to answer and close connection
-	}
-
-	@After
-	public void close() {
-		server.stop();
 	}
 
     private static class ElizaOnOpenMessageHandler implements MessageHandler.Whole<String> {
@@ -122,8 +117,7 @@ public class ElizaServerTest {
 
         @Override
         public void onOpen(Session session, EndpointConfig config) {
-			session.addMessageHandler(new ElizaMessageHandlerToComplete());
-			session.getAsyncRemote().sendText("sorry for being an asshole");
+            session.addMessageHandler(new ElizaMessageHandlerToComplete());
         }
 
         private class ElizaMessageHandlerToComplete implements MessageHandler.Whole<String> {

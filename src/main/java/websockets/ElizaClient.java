@@ -23,7 +23,7 @@ public class ElizaClient {
   private static void runClient() {
     ClientManager client = ClientManager.createClient();
     try {
-      client.connectToServer(ElizaClientEndpoint.class, new URI("ws://localhost:8025/websockets/eliza"));
+      client.connectToServer(ElizaClientEndpoint.class, new URI("ws://localhost:8080/eliza"));
       LATCH.await();
     } catch (DeploymentException | IOException | URISyntaxException | InterruptedException e) {
       LOGGER.log(Level.SEVERE, e.toString(), e);
